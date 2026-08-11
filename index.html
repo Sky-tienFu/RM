@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分寶殿堂｜戰利品分寶雙系統入口</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+TC:wght@600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0c0a10;
+  --ink2:#12101a;
+  --panel:#171320;
+  --gold:#d8ab52;
+  --gold-hi:#f2d38a;
+  --gold-dim:rgba(216,171,82,.28);
+  --ember:#e0653a;
+  --teal:#5fb8a6;
+  --parchment:#efe6d2;
+  --mute:#9a8f7c;
+  --hair:rgba(216,171,82,.18);
+  --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif;
+  --latin:'Cinzel',serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--parchment);
+  font-family:var(--sans);
+  font-weight:300;
+  overflow-x:hidden;
+  letter-spacing:.02em;
+}
+::selection{background:var(--gold);color:var(--ink)}
+a{color:inherit;text-decoration:none}
+
+/* ---------- 背景層 ---------- */
+.bg-pan{position:fixed;inset:-6%;z-index:0;pointer-events:none;opacity:.16;filter:saturate(.7) contrast(1.1)}
+.bg-pan img{width:100%;height:100%;object-fit:cover;animation:kenburns 42s ease-in-out infinite alternate}
+@keyframes kenburns{from{transform:scale(1) translate(0,0)}to{transform:scale(1.12) translate(-2%,2%)}}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 20%,transparent 30%,rgba(6,4,10,.82) 78%,#060409 100%)}
+#embers{position:fixed;inset:0;z-index:2;pointer-events:none}
+.noise{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+main,header,footer{position:relative;z-index:5}
+
+/* ---------- 頂欄 ---------- */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px clamp(18px,4vw,52px);
+  background:linear-gradient(to bottom,rgba(10,8,14,.92),rgba(10,8,14,.55) 75%,transparent);
+  border-bottom:1px solid transparent;
+  backdrop-filter:blur(6px);
+  transition:background .4s;
+}
+header.scrolled{background:rgba(10,8,14,.94);border-bottom-color:var(--hair)}
+.brand{display:flex;align-items:baseline;gap:10px;font-family:var(--serif);font-weight:900;font-size:18px}
+.brand .gem{color:var(--gold);font-size:14px;animation:gemspin 6s linear infinite;display:inline-block}
+@keyframes gemspin{to{transform:rotate(360deg)}}
+.brand small{font-family:var(--latin);font-size:10px;letter-spacing:.42em;color:var(--gold);font-weight:500}
+nav{display:flex;gap:28px;font-size:13px;letter-spacing:.18em}
+nav a{color:var(--mute);position:relative;padding:4px 0;transition:color .3s}
+nav a::after{content:'';position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--gold);transition:width .35s}
+nav a:hover{color:var(--gold-hi)}
+nav a:hover::after{width:100%}
+.clock{font-family:var(--latin);font-size:12px;letter-spacing:.14em;color:var(--gold);display:flex;gap:8px;align-items:center}
+.clock .dot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(95,184,166,.5)}50%{opacity:.55;box-shadow:0 0 0 6px rgba(95,184,166,0)}}
+@media(max-width:860px){nav{display:none}}
+
+/* ---------- HERO ---------- */
+.hero{min-height:100vh;padding:clamp(96px,14vh,150px) clamp(18px,5vw,72px) 60px;
+  display:flex;flex-direction:column;gap:clamp(28px,4vh,52px)}
+.syslog{
+  width:min(560px,100%);
+  border:1px solid var(--hair);background:rgba(14,11,20,.72);
+  padding:14px 18px;font-size:13px;line-height:2;
+  position:relative;
+}
+.syslog::before,.syslog::after{content:'';position:absolute;width:14px;height:14px;border-color:var(--gold);border-style:solid}
+.syslog::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.syslog::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+.syslog .sl-tag-sys{color:var(--gold-hi)}
+.syslog .sl-tag-loot{color:var(--teal)}
+.syslog .sl-tag-tip{color:var(--ember)}
+.cursor{display:inline-block;width:8px;height:15px;background:var(--gold);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+.hero-grid{flex:1;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr);gap:clamp(32px,5vw,80px);align-items:center}
+.eyebrow{font-family:var(--latin);font-size:clamp(10px,1.1vw,12px);letter-spacing:.5em;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.eyebrow::before{content:'';width:44px;height:1px;background:var(--gold)}
+h1{
+  font-family:var(--serif);font-weight:900;
+  font-size:clamp(52px,8.5vw,118px);line-height:1.04;letter-spacing:.06em;
+  color:var(--parchment);
+  text-shadow:0 0 60px rgba(216,171,82,.22);
+}
+h1 .en{display:block;font-family:var(--latin);font-weight:700;font-size:clamp(13px,1.4vw,17px);letter-spacing:.6em;color:var(--gold);margin-top:18px}
+.hero-sub{max-width:520px;margin-top:26px;color:var(--mute);font-size:clamp(14px,1.35vw,16.5px);line-height:2}
+.hero-sub b{color:var(--gold-hi);font-weight:500}
+
+.hero-stats{display:flex;gap:clamp(24px,3.5vw,56px);margin-top:38px;flex-wrap:wrap}
+.hstat{border-left:1px solid var(--hair);padding-left:16px}
+.hstat .num{font-family:var(--latin);font-size:clamp(24px,2.6vw,34px);font-weight:700;color:var(--gold-hi)}
+.hstat .num sup{font-size:.55em;color:var(--gold)}
+.hstat .lbl{font-size:11px;letter-spacing:.3em;color:var(--mute);margin-top:6px}
+
+.hero-cta{display:flex;gap:18px;margin-top:42px;flex-wrap:wrap}
+.btn{
+  position:relative;display:inline-flex;align-items:center;gap:12px;
+  padding:15px 30px;font-size:14px;letter-spacing:.24em;font-weight:500;
+  border:1px solid var(--gold-dim);color:var(--gold-hi);
+  overflow:hidden;transition:color .35s,border-color .35s;cursor:pointer;
+}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(100deg,var(--gold),var(--gold-hi));transform:translateX(-101%);transition:transform .45s cubic-bezier(.7,0,.2,1);z-index:-1}
+.btn:hover{color:var(--ink);border-color:var(--gold)}
+.btn:hover::before{transform:translateX(0)}
+.btn.solid{background:linear-gradient(100deg,var(--gold),var(--gold-hi));color:var(--ink);border-color:transparent;font-weight:700}
+.btn.solid::before{background:var(--parchment)}
+.btn .arr{transition:transform .35s}
+.btn:hover .arr{transform:translateX(6px)}
+
+/* 右側戰利品速記 */
+.ledger{border:1px solid var(--hair);background:rgba(16,13,22,.8);position:relative}
+.ledger::before,.ledger::after{content:'';position:absolute;width:16px;height:16px;border-color:var(--gold);border-style:solid}
+.ledger::before{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.ledger::after{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+.ledger-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--hair);font-size:12px;letter-spacing:.3em;color:var(--gold)}
+.ledger-head .live{color:var(--teal);letter-spacing:.15em;font-family:var(--latin);font-size:11px}
+.ledger-body{padding:8px 0}
+.lrow{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:11px 20px;font-size:13px;
+  opacity:0;transform:translateX(18px);animation:rowin .6s forwards}
+.lrow:nth-child(1){animation-delay:.6s}.lrow:nth-child(2){animation-delay:1s}.lrow:nth-child(3){animation-delay:1.4s}
+.lrow:nth-child(4){animation-delay:1.8s}.lrow:nth-child(5){animation-delay:2.2s}.lrow:nth-child(6){animation-delay:2.6s}
+@keyframes rowin{to{opacity:1;transform:none}}
+.lrow .it{color:var(--parchment)}
+.lrow .who{color:var(--mute);font-size:12px}
+.lrow .amt{font-family:var(--latin);color:var(--gold-hi);letter-spacing:.05em}
+.lrow.total{border-top:1px dashed var(--gold-dim);margin-top:6px;padding-top:14px;animation-delay:3s}
+.lrow.total .it{color:var(--gold);font-weight:700;letter-spacing:.2em}
+.lrow.total .amt{font-size:17px;color:var(--gold-hi)}
+.ledger-foot{padding:12px 20px;border-top:1px solid var(--hair);font-size:11px;color:var(--mute);letter-spacing:.15em;display:flex;justify-content:space-between}
+@media(max-width:920px){.hero-grid{grid-template-columns:1fr}.ledger{max-width:560px}}
+
+/* ---------- 章節標題 ---------- */
+section{padding:clamp(70px,10vh,120px) clamp(18px,5vw,72px)}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:clamp(36px,5vh,60px);flex-wrap:wrap}
+.sec-head .no{font-family:var(--latin);font-size:12px;letter-spacing:.5em;color:var(--gold);display:block;margin-bottom:14px}
+.sec-head h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4.2vw,52px);letter-spacing:.08em}
+.sec-head p{max-width:380px;color:var(--mute);font-size:13.5px;line-height:2}
+.rule{display:flex;align-items:center;gap:14px;color:var(--gold);margin:0 auto;max-width:1200px}
+.rule::before,.rule::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim))}
+.rule::after{background:linear-gradient(90deg,var(--gold-dim),transparent)}
+
+/* line-mask reveal */
+.reveal{clip-path:inset(0 0 100% 0);transform:translateY(24px);opacity:0;transition:clip-path .9s cubic-bezier(.6,0,.2,1),transform .9s cubic-bezier(.6,0,.2,1),opacity .7s}
+.reveal.in{clip-path:inset(0 0 -10% 0);transform:none;opacity:1}
+.reveal.d1{transition-delay:.12s}.reveal.d2{transition-delay:.24s}.reveal.d3{transition-delay:.36s}
+
+/* ---------- 雙系統卡片 ---------- */
+.tools{display:flex;flex-direction:column;gap:clamp(40px,6vh,72px);max-width:1240px;margin:0 auto}
+.tool-card{
+  display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  border:1px solid var(--hair);background:linear-gradient(140deg,rgba(24,19,33,.9),rgba(13,10,18,.9));
+  position:relative;overflow:hidden;transition:border-color .4s,box-shadow .4s;will-change:transform;
+}
+.tool-card:hover{border-color:rgba(216,171,82,.55);box-shadow:0 30px 80px -30px rgba(216,171,82,.28)}
+.tool-card.flip{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)}
+.tool-card.flip .tc-body{order:2}
+.tc-body{padding:clamp(28px,4vw,52px);display:flex;flex-direction:column;gap:20px}
+.tc-tag{display:inline-flex;align-items:center;gap:10px;font-family:var(--latin);font-size:11px;letter-spacing:.4em;width:fit-content}
+.tc-tag .sq{width:8px;height:8px;transform:rotate(45deg)}
+.tool-card.gold .tc-tag{color:var(--gold-hi)}.tool-card.gold .sq{background:var(--gold)}
+.tool-card.ember .tc-tag{color:var(--ember)}.tool-card.ember .sq{background:var(--ember)}
+.tc-body h3{font-family:var(--serif);font-weight:900;font-size:clamp(24px,2.8vw,36px);letter-spacing:.06em;line-height:1.3}
+.tc-body h3 small{display:block;font-size:.44em;font-weight:400;color:var(--mute);letter-spacing:.3em;margin-top:10px;font-family:var(--sans)}
+.tc-desc{color:var(--mute);font-size:14px;line-height:2}
+.tc-feats{list-style:none;display:grid;gap:10px;margin-top:4px}
+.tc-feats li{display:flex;gap:12px;font-size:13.5px;color:#cfc4ab;align-items:baseline}
+.tc-feats li::before{content:'◆';font-size:9px;color:var(--gold);flex-shrink:0;transform:translateY(-1px)}
+.tool-card.ember .tc-feats li::before{color:var(--ember)}
+.tc-enter{margin-top:auto;padding-top:24px}
+.tc-glow{position:absolute;width:340px;height:340px;border-radius:50%;filter:blur(90px);opacity:.14;pointer-events:none;transition:opacity .5s}
+.tool-card:hover .tc-glow{opacity:.26}
+.tool-card.gold .tc-glow{background:var(--gold);top:-120px;right:-80px}
+.tool-card.ember .tc-glow{background:var(--ember);bottom:-120px;left:-80px}
+
+.tc-visual{position:relative;border-left:1px solid var(--hair);min-height:360px;overflow:hidden}
+.tool-card.flip .tc-visual{border-left:0;border-right:1px solid var(--hair)}
+.tc-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.34;filter:saturate(.8);transition:transform 6s ease,opacity .6s}
+.tool-card:hover .tc-visual img{transform:scale(1.07);opacity:.46}
+.mini{
+  position:absolute;left:22px;right:22px;bottom:22px;z-index:2;
+  background:rgba(12,9,17,.92);border:1px solid var(--hair);
+  padding:16px 18px;font-size:12px;box-shadow:0 20px 50px rgba(0,0,0,.5);
+}
+.mini .m-title{font-size:10px;letter-spacing:.35em;color:var(--gold);margin-bottom:12px;display:flex;justify-content:space-between}
+.mini .m-title span:last-child{color:var(--teal)}
+.mini-row{display:flex;justify-content:space-between;padding:6px 0;border-top:1px dashed rgba(216,171,82,.14);color:#cbbfa5}
+.mini-row b{font-family:var(--latin);color:var(--gold-hi);font-weight:500}
+.mini-input{display:flex;gap:8px;margin-bottom:10px}
+.mini-input span{flex:1;border:1px solid var(--gold-dim);padding:6px 10px;color:var(--parchment);background:rgba(216,171,82,.06)}
+.mini-input i{font-style:normal;background:var(--gold);color:var(--ink);padding:6px 12px;font-weight:700;letter-spacing:.1em}
+.mini-badge{display:inline-block;margin-top:10px;border:1px solid rgba(95,184,166,.4);color:var(--teal);padding:4px 10px;font-size:10px;letter-spacing:.25em}
+@media(max-width:920px){
+  .tool-card,.tool-card.flip{grid-template-columns:1fr}
+  .tool-card.flip .tc-body{order:0}
+  .tc-visual{border-left:0;border-top:1px solid var(--hair);min-height:300px}
+}
+
+/* ---------- 對照表 ---------- */
+.compare{max-width:1240px;margin:clamp(40px,6vh,72px) auto 0;border:1px solid var(--hair)}
+.compare table{width:100%;border-collapse:collapse;font-size:13.5px}
+.compare th,.compare td{padding:15px 20px;text-align:center;border-bottom:1px solid rgba(216,171,82,.1)}
+.compare th{font-family:var(--serif);font-weight:700;letter-spacing:.12em;font-size:14px;color:var(--gold-hi);background:rgba(216,171,82,.06)}
+.compare td:first-child,.compare th:first-child{text-align:left;color:var(--mute);letter-spacing:.1em}
+.compare td{color:#cfc4ab}
+.compare .yes{color:var(--gold-hi)}
+.compare .no{color:#5a5348}
+.compare tr:last-child td{border-bottom:0}
+.compare tbody tr{transition:background .3s}
+.compare tbody tr:hover{background:rgba(216,171,82,.05)}
+.compare a{color:var(--gold);border-bottom:1px solid var(--gold-dim);padding-bottom:2px;transition:border-color .3s}
+.compare a:hover{border-color:var(--gold)}
+@media(max-width:640px){.compare{overflow-x:auto}.compare table{min-width:560px}}
+
+/* ---------- 步驟 ---------- */
+.steps-wrap{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(32px,6vw,90px);max-width:1240px;margin:0 auto}
+.steps-left{position:sticky;top:120px;align-self:start}
+.steps-left h2{font-family:var(--serif);font-weight:900;font-size:clamp(30px,4vw,50px);letter-spacing:.08em;line-height:1.35}
+.steps-left h2 em{font-style:normal;color:var(--gold)}
+.steps-left p{color:var(--mute);margin-top:22px;line-height:2.1;font-size:14px;max-width:360px}
+.steps-left .orn{margin-top:30px;color:var(--gold);letter-spacing:.6em;font-size:13px}
+.step{display:grid;grid-template-columns:auto 1fr;gap:clamp(18px,3vw,36px);padding:clamp(26px,4vh,40px) 0;border-bottom:1px solid var(--hair)}
+.step:first-child{padding-top:0}
+.step-no{font-family:var(--latin);font-size:clamp(34px,4vw,52px);font-weight:700;color:transparent;-webkit-text-stroke:1px var(--gold);line-height:1}
+.step h4{font-family:var(--serif);font-size:clamp(18px,1.8vw,23px);font-weight:700;letter-spacing:.1em;margin-bottom:12px}
+.step p{color:var(--mute);font-size:13.5px;line-height:2}
+.step p code{font-family:var(--sans);color:var(--gold-hi);background:rgba(216,171,82,.09);border:1px solid var(--gold-dim);padding:2px 8px;font-size:12px}
+@media(max-width:860px){.steps-wrap{grid-template-columns:1fr}.steps-left{position:static}}
+
+/* ---------- 跑馬燈 ---------- */
+.ticker{border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);overflow:hidden;padding:18px 0;background:rgba(216,171,82,.03)}
+.ticker-track{display:flex;gap:0;width:max-content;animation:tick 36s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+@keyframes tick{to{transform:translateX(-50%)}}
+.tk{display:inline-flex;align-items:center;gap:14px;padding:0 34px;font-size:13.5px;color:#cfc4ab;white-space:nowrap}
+.tk .d{color:var(--gold);font-size:9px}
+.tk b{font-family:var(--latin);color:var(--gold-hi);font-weight:500}
+
+/* ---------- Footer ---------- */
+footer{padding:60px clamp(18px,5vw,72px) 44px;border-top:1px solid var(--hair)}
+.f-grid{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;max-width:1240px;margin:0 auto}
+.f-brand{font-family:var(--serif);font-weight:900;font-size:22px}
+.f-brand small{display:block;font-family:var(--latin);font-size:10px;letter-spacing:.45em;color:var(--gold);margin-top:8px}
+.f-links{display:flex;gap:30px;font-size:13px;color:var(--mute);align-items:center;flex-wrap:wrap}
+.f-links a{transition:color .3s}
+.f-links a:hover{color:var(--gold-hi)}
+.f-note{max-width:1240px;margin:34px auto 0;padding-top:22px;border-top:1px dashed rgba(216,171,82,.14);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:11.5px;color:#6f675a;letter-spacing:.12em}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  .reveal{clip-path:none;opacity:1;transform:none}
+  .lrow{opacity:1;transform:none}
+  .ticker-track{animation:none;flex-wrap:wrap;width:auto}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-pan"><img src="https://picsum.photos/seed/lineage-castle-night/1600/1000" alt=""></div>
+<div class="vignette"></div>
+<canvas id="embers"></canvas>
+<div class="noise"></div>
+
+<header id="topbar">
+  <div class="brand"><span class="gem">◈</span>分寶殿堂 <small>LOOT VAULT</small></div>
+  <nav>
+    <a href="#systems">雙系統入口</a>
+    <a href="#compare">功能對照</a>
+    <a href="#steps">使用步驟</a>
+  </nav>
+  <div class="clock"><span class="dot"></span><span id="clock">--</span></div>
+</header>
+
+<main>
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="syslog" id="syslog" aria-label="系統訊息"></div>
+
+  <div class="hero-grid">
+    <div>
+      <p class="eyebrow">LINEAGE LOOT CONSOLE · 雙系統整合入口</p>
+      <h1><span id="scramble">分寶殿堂</span><span class="en">HALL OF THE LOOT</span></h1>
+      <p class="hero-sub">
+        戰利品明細<b>貼上即自動解析</b>。無論是單人查詢「我能領多少」，
+        還是全團統計「總共分了多少」——兩套計算系統，一個入口，帳目即刻分明。
+      </p>
+      <div class="hero-stats">
+        <div class="hstat"><div class="num" data-count="2"><span>0</span></div><div class="lbl">計算系統</div></div>
+        <div class="hstat"><div class="num"><span data-count="100">0</span><sup>%</sup></div><div class="lbl">純前端運算</div></div>
+        <div class="hstat"><div class="num"><span data-count="1">0</span><sup>步</sup></div><div class="lbl">貼上即解析</div></div>
+        <div class="hstat"><div class="num">0.1<sup>s</sup></div><div class="lbl">即時更新</div></div>
+      </div>
+      <div class="hero-cta">
+        <a class="btn solid" href="rm1.html">單人分寶查詢 <span class="arr">→</span></a>
+        <a class="btn" href="rm2.html">全團統計系統 <span class="arr">→</span></a>
+      </div>
+    </div>
+
+    <aside class="ledger" aria-hidden="true">
+      <div class="ledger-head">今日戰利品速記 <span class="live">● LIVE</span></div>
+      <div class="ledger-body">
+        <div class="lrow"><span class="it">+8 屠戮之刃</span><span class="who">劍士・阿德斯</span><span class="amt">$25,000</span></div>
+        <div class="lrow"><span class="it">龍之寶石</span><span class="who">法師・伊莉絲</span><span class="amt">$8,500</span></div>
+        <div class="lrow"><span class="it">暗黑雙刀</span><span class="who">盜賊・肯特</span><span class="amt">$32,000</span></div>
+        <div class="lrow"><span class="it">古代卷軸</span><span class="who">王族・迪嘉勒</span><span class="amt">$4,200</span></div>
+        <div class="lrow"><span class="it">魔法書・冰封</span><span class="who">法師・伊莉絲</span><span class="amt">$6,800</span></div>
+        <div class="lrow total"><span class="it">本日累計</span><span class="who">4 名成員</span><span class="amt">$76,500</span></div>
+      </div>
+      <div class="ledger-foot"><span>資料僅供展示</span><span>RM-VAULT / 08-12</span></div>
+    </aside>
+  </div>
+</section>
+
+<div class="rule">◆</div>
+
+<!-- ============ 雙系統 ============ -->
+<section id="systems">
+  <div class="sec-head">
+    <div class="reveal"><span class="no">01 / SYSTEMS</span><h2>選擇你的系統</h2></div>
+    <p class="reveal d1">一套查個人、一套算全團。兩者皆以「貼上原始資料」為起點，無需設定、免安裝。</p>
+  </div>
+
+  <div class="tools">
+    <!-- rm1 -->
+    <article class="tool-card gold reveal">
+      <div class="tc-glow"></div>
+      <div class="tc-body">
+        <span class="tc-tag"><span class="sq"></span>SYSTEM A · PERSONAL QUERY</span>
+        <h3>天堂分寶查詢計算系統<small>單人結算 ・ 一人一查 ・ 即時金額</small></h3>
+        <p class="tc-desc">想知道「我這場能領多少」？貼上完整分寶資料、輸入自己的角色名稱，系統自動回傳你參與的每一場次與總計可領金額。</p>
+        <ul class="tc-feats">
+          <li>完整原始資料一次貼上，自動建立索引</li>
+          <li>輸入角色名稱，精準鎖定該角色的所有場次</li>
+          <li>逐筆列出時間／項目／金額明細表格</li>
+          <li>總計可領金額即時結算，單位 NT</li>
+        </ul>
+        <div class="tc-enter"><a class="btn solid" href="rm1.html">進入單人查詢 <span class="arr">→</span></a></div>
+      </div>
+      <div class="tc-visual">
+        <img src="https://picsum.photos/seed/lineage-sword-treasure/900/900" alt="單人查詢系統示意">
+        <div class="mini">
+          <div class="m-title">QUERY PREVIEW <span>● READY</span></div>
+          <div class="mini-input"><span>查詢名稱：亞丁劍士</span><i>計算</i></div>
+          <div class="mini-row"><span>參與場次</span><b>3 場</b></div>
+          <div class="mini-row"><span>總計可領金額</span><b>$18,400 NT</b></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- rm2 -->
+    <article class="tool-card ember flip reveal">
+      <div class="tc-glow"></div>
+      <div class="tc-body">
+        <span class="tc-tag"><span class="sq"></span>SYSTEM B · GUILD STATISTICS</span>
+        <h3>活動分寶統計與人名搜尋系統<small>全團統計 ・ 日期切分 ・ 貼上即解析</small></h3>
+        <p class="tc-desc">團長與管理者的帳本。以「日期開頭」自動切分每個分寶項目，貼上明細立即更新全部統計資訊，並可透過人名搜尋快速過濾。</p>
+        <ul class="tc-feats">
+          <li>以日期開頭自動切分項目，無需手動整理</li>
+          <li>貼上後立即自動更新，即時反映異動</li>
+          <li>人名搜尋／過濾，一鍵重置</li>
+          <li>總場次、總分寶金額一次總覽</li>
+        </ul>
+        <div class="tc-enter"><a class="btn solid" href="rm2.html">進入全團統計 <span class="arr">→</span></a></div>
+      </div>
+      <div class="tc-visual">
+        <img src="https://picsum.photos/seed/guild-treasure-hall/900/900" alt="全團統計系統示意">
+        <div class="mini">
+          <div class="m-title">STATS PREVIEW <span>● AUTO</span></div>
+          <div class="mini-row"><span>共計場次分寶</span><b>12 場</b></div>
+          <div class="mini-row"><span>總分寶金額</span><b>$206,300</b></div>
+          <span class="mini-badge">✓ 已自動解析 · 依日期切分</span>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- 對照表 -->
+  <div class="compare reveal" id="compare">
+    <table>
+      <thead>
+        <tr><th>功能對照</th><th><a href="rm1.html">A・單人查詢</a></th><th><a href="rm2.html">B・全團統計</a></th></tr>
+      </thead>
+      <tbody>
+        <tr><td>原始資料貼上</td><td class="yes">◆</td><td class="yes">◆</td></tr>
+        <tr><td>角色名稱查詢</td><td class="yes">◆ 精準鎖定個人</td><td class="yes">◆ 搜尋過濾</td></tr>
+        <tr><td>日期切分項目</td><td class="no">—</td><td class="yes">◆ 自動切分</td></tr>
+        <tr><td>逐筆明細列表</td><td class="yes">◆ 時間／項目／金額</td><td class="yes">◆</td></tr>
+        <tr><td>個人可領金額</td><td class="yes">◆ 總計 NT</td><td class="no">—</td></tr>
+        <tr><td>全團總場次／總金額</td><td class="no">—</td><td class="yes">◆ 即時統計</td></tr>
+        <tr><td>適用情境</td><td>團員查自己的帳</td><td>團長管全團的帳</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="rule">◆</div>
+
+<!-- ============ 步驟 ============ -->
+<section id="steps">
+  <div class="steps-wrap">
+    <div class="steps-left reveal">
+      <span class="eyebrow" style="margin-bottom:18px">02 / WORKFLOW</span>
+      <h2>三步完成<br><em>分寶結算</em></h2>
+      <p>不用登入、不用上傳。所有計算都在你的瀏覽器內完成，明細資料不會離開本機。</p>
+      <div class="orn">◆ ◇ ◆</div>
+    </div>
+    <div class="steps-right">
+      <div class="step reveal">
+        <div class="step-no">01</div>
+        <div><h4>複製分寶明細</h4><p>從遊戲公告、群組紀錄或記事本中，複製完整的分寶文字。單人查詢需<code>完整資料</code>；全團統計只需以<code>日期開頭</code>的明細格式。</p></div>
+      </div>
+      <div class="step reveal d1">
+        <div class="step-no">02</div>
+        <div><h4>貼上，立即解析</h4><p>進入對應系統，將文字貼入輸入框。全團統計<code>貼上後即自動更新</code>；單人查詢輸入角色名稱後按下計算即可。</p></div>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-no">03</div>
+        <div><h4>查看結果、完成結算</h4><p>單人查詢顯示該角色<code>參與場次與總計可領金額</code>；全團統計顯示<code>總場次與總分寶金額</code>，並可隨時以人名搜尋或重置過濾。</p></div>
+      </div>
+      <div class="step reveal d3">
+        <div class="step-no">◆</div>
+        <div><h4>小提醒</h4><p>兩套系統互補使用：先用 B 系統確認全團總帳，再用 A 系統逐一回覆團員「你能領多少」，結算流程最順。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 跑馬燈 ============ -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track" id="ticker">
+    <span class="tk"><span class="d">◆</span>+8 屠戮之刃 <b>$25,000</b></span>
+    <span class="tk"><span class="d">◆</span>龍之寶石 <b>$8,500</b></span>
+    <span class="tk"><span class="d">◆</span>暗黑雙刀 <b>$32,000</b></span>
+    <span class="tk"><span class="d">◆</span>古代卷軸 <b>$4,200</b></span>
+    <span class="tk"><span class="d">◆</span>魔法書・冰封 <b>$6,800</b></span>
+    <span class="tk"><span class="d">◆</span>銀色長劍 <b>$12,000</b></span>
+    <span class="tk"><span class="d">◆</span>泰坦之斧 <b>$41,500</b></span>
+    <span class="tk"><span class="d">◆</span>黑曜戒指 <b>$9,300</b></span>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div class="f-grid">
+    <div class="f-brand">◈ 分寶殿堂<small>HALL OF THE LOOT</small></div>
+    <div class="f-links">
+      <a href="rm1.html">A・天堂分寶查詢計算系統</a>
+      <a href="rm2.html">B・活動分寶統計與人名搜尋系統</a>
+      <a href="#steps">使用說明</a>
+    </div>
+  </div>
+  <div class="f-note">
+    <span>純前端運算 ・ 資料不離開瀏覽器 ・ 無須登入</span>
+    <span id="foot-date">RM-VAULT</span>
+  </div>
+</footer>
+
+<script>
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---- 時鐘 ---- */
+const wd = ['日','一','二','三','四','五','六'];
+function tickClock(){
+  const d = new Date(), p = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent =
+    `${d.getFullYear()}/${p(d.getMonth()+1)}/${p(d.getDate())} 週${wd[d.getDay()]} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+tickClock(); setInterval(tickClock, 1000);
+document.getElementById('foot-date').textContent =
+  `${new Date().getFullYear()} 分寶殿堂 · LOOT VAULT`;
+
+/* ---- 頂欄捲動 ---- */
+const bar = document.getElementById('topbar');
+addEventListener('scroll', () => bar.classList.toggle('scrolled', scrollY > 40), {passive:true});
+
+/* ---- 系統訊息打字 ---- */
+const syslog = document.getElementById('syslog');
+const lines = [
+  {tag:'[系統]', cls:'sl-tag-sys',  text:'連線成功，歡迎回到「分寶殿堂」。'},
+  {tag:'[戰利品]', cls:'sl-tag-loot', text:'雙系統就緒：A 單人查詢 / B 全團統計。'},
+  {tag:'[提示]', cls:'sl-tag-tip',  text:'請選擇下方任一系統，貼上明細即可開始計算。'}
+];
+if (reduced) {
+  syslog.innerHTML = lines.map(l =>
+    `<div><span class="${l.cls}">${l.tag}</span> ${l.text}</div>`).join('');
+} else {
+  const cursor = document.createElement('span'); cursor.className = 'cursor';
+  let li = 0;
+  function typeLine(){
+    if (li >= lines.length){ cursor.remove(); return; }
+    const l = lines[li], div = document.createElement('div');
+    div.innerHTML = `<span class="${l.cls}">${l.tag}</span> `;
+    syslog.appendChild(div); div.appendChild(cursor);
+    let ci = 0;
+    const iv = setInterval(() => {
+      div.insertBefore(document.createTextNode(l.text[ci]), cursor);
+      ci++;
+      if (ci >= l.text.length){ clearInterval(iv); li++; setTimeout(typeLine, 350); }
+    }, 42);
+  }
+  typeLine();
+}
+
+/* ---- 標題亂碼解譯 ---- */
+const scEl = document.getElementById('scramble');
+const FINAL = '分寶殿堂';
+if (reduced) { scEl.textContent = FINAL; }
+else {
+  const pool = '寶劍龍盾魔晶魂殿戰金闇 Statistics $0123456789◆◇';
+  let f = 0, T = 34;
+  const iv = setInterval(() => {
+    f++;
+    let out = '';
+    for (let i = 0; i < FINAL.length; i++){
+      out += (i < FINAL.length * f / T) ? FINAL[i] : pool[Math.floor(Math.random()*pool.length)];
+    }
+    scEl.textContent = out;
+    if (f >= T){ scEl.textContent = FINAL; clearInterval(iv); }
+  }, 42);
+}
+
+/* ---- 數字滾動 ---- */
+const counters = document.querySelectorAll('[data-count]');
+const cObs = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  cObs.unobserve(e.target);
+  const el = e.target, target = +el.dataset.count, t0 = performance.now();
+  if (reduced){ el.textContent = target; return; }
+  (function run(t){
+    const k = Math.min((t - t0) / 900, 1);
+    el.textContent = Math.round(target * (1 - Math.pow(1-k, 3)));
+    if (k < 1) requestAnimationFrame(run);
+  })(t0);
+}), {threshold:.6});
+counters.forEach(c => cObs.observe(c));
+
+/* ---- 進場顯示 ---- */
+const rObs = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting){ e.target.classList.add('in'); rObs.unobserve(e.target); }
+}), {threshold:.18});
+document.querySelectorAll('.reveal').forEach(el => rObs.observe(el));
+
+/* ---- 卡片微傾 ---- */
+if (!reduced && matchMedia('(pointer:fine)').matches){
+  document.querySelectorAll('.tool-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - .5;
+      const y = (e.clientY - r.top) / r.height - .5;
+      card.style.transform = `perspective(1100px) rotateY(${x*3.2}deg) rotateX(${-y*3.2}deg)`;
+    });
+    card.addEventListener('mouseleave', () => card.style.transform = '');
+  });
+}
+
+/* ---- 跑馬燈內容加倍 ---- */
+const tk = document.getElementById('ticker');
+tk.innerHTML += tk.innerHTML;
+
+/* ---- 餘燼粒子 ---- */
+const cv = document.getElementById('embers'), cx = cv.getContext('2d');
+let W, H, parts = [];
+function sizeCv(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
+sizeCv(); addEventListener('resize', sizeCv);
+function makeP(){ return {
+  x: Math.random()*W, y: H + Math.random()*80,
+  r: Math.random()*2 + .6, s: Math.random()*.5 + .25,
+  w: Math.random()*Math.PI*2, a: Math.random()*.5 + .15,
+  hue: Math.random() < .82 ? '216,171,82' : '224,101,58'
+};}
+if (!reduced){
+  parts = Array.from({length:55}, makeP);
+  (function loop(){
+    cx.clearRect(0,0,W,H);
+    for (const p of parts){
+      p.y -= p.s; p.w += .02; p.x += Math.sin(p.w)*.4;
+      const flick = p.a * (0.7 + Math.sin(p.w*2)*.3);
+      cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7);
+      cx.fillStyle = `rgba(${p.hue},${flick})`; cx.fill();
+      if (p.y < -20) Object.assign(p, makeP(), {y: H + 20});
+    }
+    requestAnimationFrame(loop);
+  })();
+}
+</script>
+</body>
+</html>

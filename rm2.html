@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活動分寶統計與人名搜尋系統</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        /* 貼上與匯入資料區塊樣式 */
+        .import-box {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .import-box h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+
+        .import-box textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            resize: vertical;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .import-box textarea:focus {
+            border-color: var(--secondary-color);
+        }
+
+        /* 搜尋區塊樣式 */
+        .search-box {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .search-box input {
+            width: 60%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--secondary-color);
+        }
+
+        .search-box button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .search-box button:hover {
+            background-color: #2980b9;
+        }
+
+        /* 搜尋結果與金額總計面版 */
+        #search-result-summary {
+            background: #ffffff;
+            border-left: 5px solid var(--secondary-color);
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .summary-info h3 {
+            margin: 0 0 5px 0;
+            color: var(--primary-color);
+        }
+
+        .summary-info p {
+            margin: 0;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .summary-total {
+            background: #e8f4f8;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-align: right;
+        }
+
+        .summary-total .total-label {
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .summary-total .total-amount {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        /* 統計列表區塊 */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .event-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            border-top: 4px solid var(--secondary-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .event-time {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+
+        .event-amount {
+            background-color: #e8f4f8;
+            color: var(--secondary-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .event-items {
+            font-weight: 600;
+            color: #e67e22;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+
+        .participants-container {
+            flex-grow: 1;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px;
+            background-color: #fafbfc;
+        }
+
+        .participants-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .participants-list li {
+            background: #edf2f7;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #4a5568;
+        }
+
+        .participant-count {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: #718096;
+            text-align: right;
+        }
+
+        .highlight {
+            background-color: #fef08a !important;
+            color: #713f12 !important;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>戰利品分寶統計與人名搜尋系統</h1>
+        <p>以「日期開頭」作為每個項目的切分依據，貼上後立即自動解析</p>
+    </header>
+
+    <!-- 文字方塊貼上與匯入資料區塊 -->
+    <div class="import-box">
+        <h3>📥 直接貼上分寶明細文字（貼上後即自動更新）</h3>
+        <textarea id="dataInput" placeholder="請在此直接貼上你的分寶文字..."></textarea>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="輸入成員名稱進行過濾 (留空顯示全部)...">
+        <button onclick="searchMember()">搜尋/過濾</button>
+        <button onclick="resetSearch()" style="background-color: #95a5a6;">重置</button>
+    </div>
+
+    <!-- 搜尋結果與金額總計面板 -->
+    <div id="search-result-summary">
+        <div class="summary-info">
+            <h3 id="summary-title">全部統計資訊</h3>
+            <p id="summary-desc">共計 0 場次分寶</p>
+        </div>
+        <div class="summary-total">
+            <div class="total-label" id="total-label-text">總分寶金額</div>
+            <div class="total-amount" id="summary-total-amount">$0</div>
+        </div>
+    </div>
+
+    <div class="events-grid" id="eventsGrid">
+        <!-- 資料將由使用者貼上後動態產生 -->
+    </div>
+</div>
+
+<script>
+    let eventData = [];
+
+    function parseAmountToValue(amountText) {
+        if (!amountText) return 0;
+        let cleanText = amountText.replace(/[\s,]/g, '');
+        let numMatch = cleanText.match(/\d+/);
+        if (!numMatch) return 0;
+        let num = parseInt(numMatch[0], 10);
+        
+        if (cleanText.includes('萬')) {
+            return num * 10000;
+        }
+        return num;
+    }
+
+    // 嚴格以「數字/數字」日期格式開頭來判定新項目的開始
+    function isDateHeader(line) {
+        return /^\d{1,2}\/\d{1,2}/.test(line);
+    }
+
+    function parseTextToEvents(text) {
+        const rawLines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
+        const events = [];
+        let i = 0;
+
+        while (i < rawLines.length) {
+            // 找到以日期開頭的行
+            if (isDateHeader(rawLines[i])) {
+                let dateLine = rawLines[i];
+                i++;
+
+                // 收集接下來的行，直到遇到下一個「日期開頭」或結尾為止
+                let blockLines = [];
+                while (i < rawLines.length && !isDateHeader(rawLines[i])) {
+                    blockLines.push(rawLines[i]);
+                    i++;
+                }
+
+                // 在這個區塊中，通常包含：時間/品項、金額、以及成員名單
+                // 我們嘗試從 blockLines 中萃取出金額（通常含有數字、萬、元、一人等，或位於前兩行）
+                let amountText = "未知金額";
+                let amountValue = 0;
+                let members = [];
+                let itemsStr = "無";
+
+                // 解析日期行本身是否有包含品項 (例如: "3/8 21點 寶石")
+                let parts = dateLine.split(/\s+/);
+                let timeStr = parts.length >= 2 ? parts[0] + " " + parts[1] : dateLine;
+                if (parts.length >= 3) {
+                    itemsStr = parts.slice(2).join(" ");
+                }
+
+                // 掃描 blockLines 找出金額與成員
+                for (let j = 0; j < blockLines.length; j++) {
+                    let line = blockLines[j];
+                    let clean = line.replace(/[\s,]/g, '');
+                    
+                    // 判斷是否為金額行條件：包含萬、元、一人，或是純數字且數值合理
+                    let isAmount = line.includes('一人') || line.includes('萬') || line.includes('元') || (/^\d+$/.test(clean) && parseInt(clean, 10) > 50);
+                    
+                    if (isAmount && amountText === "未知金額") {
+                        amountText = line;
+                        amountValue = parseAmountToValue(line);
+                    } else {
+                        // 如果還沒找到品項，且第一行沒品項，這一行也有可能是品項？通常成員都是人名
+                        // 簡單起見，不是金額的都先當作成員候選
+                        members.push(line);
+                    }
+                }
+
+                // 如果成員名單的第一項看起來像品項而非人名（例如不包含常見遊戲名特徵或含有道具字眼），可以視需求調整，目前全數納入成員
+                events.push({
+                    time: timeStr,
+                    items: itemsStr,
+                    amountText: amountText,
+                    amountValue: amountValue,
+                    members: members
+                });
+            } else {
+                i++;
+            }
+        }
+        return events;
+    }
+
+    function formatCurrency(amount) {
+        return amount.toLocaleString('en-US');
+    }
+
+    function renderEvents(filterName = "") {
+        const grid = document.getElementById('eventsGrid');
+        const summaryTitle = document.getElementById('summary-title');
+        const summaryDesc = document.getElementById('summary-desc');
+        const summaryTotalAmount = document.getElementById('summary-total-amount');
+        const totalLabelText = document.getElementById('total-label-text');
+        
+        grid.innerHTML = "";
+
+        if (eventData.length === 0) {
+            grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #718096; padding: 40px;">請在上方文字框貼上分寶資料，系統將會自動解析。</p>`;
+            summaryTitle.textContent = "統計資訊";
+            summaryDesc.textContent = "共計 0 場次分寶";
+            summaryTotalAmount.textContent = "$0";
+            return;
+        }
+
+        let matchCount = 0;
+        let totalAmount = 0;
+        const query = filterName.trim().toLowerCase();
+
+        eventData.forEach((event) => {
+            let isMatchedEvent = false;
+            if (query === "") {
+                isMatchedEvent = true;
+            } else {
+                isMatchedEvent = event.members.some(m => m.toLowerCase().includes(query));
+            }
+
+            if (isMatchedEvent) {
+                matchCount++;
+                totalAmount += event.amountValue;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'event-card';
+            if (query !== "" && !isMatchedEvent) {
+                card.classList.add('hidden');
+            }
+
+            let membersHtml = '';
+            event.members.forEach(member => {
+                let isTarget = false;
+                if (query !== "" && member.toLowerCase().includes(query)) {
+                    isTarget = true;
+                }
+                membersHtml += `<li class="${isTarget ? 'highlight' : ''}">${member}</li>`;
+            });
+
+            card.innerHTML = `
+                <div class="event-header">
+                    <span class="event-time">${event.time}</span>
+                    <span class="event-amount">${event.amountText}</span>
+                </div>
+                <div class="event-items">📦 掉落物：${event.items}</div>
+                <div class="participants-container">
+                    <ul class="participants-list">
+                        ${membersHtml}
+                    </ul>
+                </div>
+                <div class="participant-count">參與人數：${event.members.length} 人</div>
+            `;
+            grid.appendChild(card);
+        });
+
+        if (query !== "") {
+            summaryTitle.textContent = `搜尋成員：「${filterName}」`;
+            summaryDesc.textContent = `共參與 ${matchCount} 場次分寶`;
+            totalLabelText.textContent = "參與總金額";
+        } else {
+            summaryTitle.textContent = "全部統計資訊";
+            summaryDesc.textContent = `總共 ${eventData.length} 場次分寶`;
+            totalLabelText.textContent = "總分寶金額";
+        }
+        summaryTotalAmount.textContent = `$${formatCurrency(totalAmount)}`;
+    }
+
+    function handleAutoParse() {
+        const rawText = document.getElementById('dataInput').value;
+        if (!rawText.trim()) {
+            eventData = [];
+            renderEvents();
+            return;
+        }
+        eventData = parseTextToEvents(rawText);
+        searchMember();
+    }
+
+    function searchMember() {
+        const input = document.getElementById('searchInput').value;
+        renderEvents(input);
+    }
+
+    function resetSearch() {
+        document.getElementById('searchInput').value = "";
+        renderEvents("");
+    }
+
+    document.getElementById('dataInput').addEventListener('input', handleAutoParse);
+
+    document.getElementById('searchInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            searchMember();
+        }
+    });
+
+    renderEvents();
+</script>
+
+</body>
+</html>

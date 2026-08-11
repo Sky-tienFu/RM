@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>天堂分寶查詢計算系統</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 { color: #1e3a8a; margin-top: 0; font-size: 22px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+        .input-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 200px;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #1d4ed8; }
+        .result-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 18px;
+        }
+        .result-box span { font-weight: bold; color: #1e3a8a; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th { background-color: #1e3a8a; color: white; }
+        tr:nth-child(even) { background-color: #f9fafb; }
+        .amount { text-align: right; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 玩家分寶動態計算工具</h1>
+        <p>請將完整資料貼入下方文字框，並輸入要查詢的角色名稱，即可自動計算該角色參與的場次及總金額：</p>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">原始資料貼上：</label>
+            <textarea id="rawText" placeholder="請在此貼上完整分寶名單文字..."></textarea>
+        </div>
+
+        <div class="input-section">
+            <div>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">查詢名稱：</label>
+                <input type="text" id="targetName" value="藍染" placeholder="例如：藍染">
+            </div>
+            <div style="margin-top: 22px;">
+                <button onclick="calculate()">開始計算查詢</button>
+            </div>
+        </div>
+
+        <div class="result-box" id="summaryResult" style="display:none;">
+            查詢對象：<span id="displayName"></span> | 總計可領金額：<span id="totalAmount">0</span> NT
+        </div>
+
+        <table id="resultTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th>時間</th>
+                    <th>項目 / 裝備</th>
+                    <th style="text-align: right;">金額</th>
+                </tr>
+            </thead>
+            <tbody id="resultBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    function calculate() {
+        const text = document.getElementById('rawText').value;
+        const target = document.getElementById('targetName').value.trim();
+        
+        if(!text || !target) {
+            alert('請輸入原始資料與要查詢的名稱！');
+            return;
+        }
+
+        const lines = text.split('\n');
+        let currentDateTime = '';
+        let currentItem = '';
+        let currentAmount = 0;
+        let records = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line) continue;
+
+            if (/^\d{1,2}\/\d{1,2}\s+\d+點/.test(line)) {
+                let parts = line.split(/\s+/);
+                currentDateTime = parts[0] + ' ' + parts[1];
+                currentItem = parts.slice(2).join(' ');
+                currentAmount = 0;
+            } 
+            else if (line.startsWith('一人')) {
+                let amtStr = line.replace('一人', '').trim();
+                if (amtStr.includes('萬')) {
+                    let num = parseFloat(amtStr.replace('萬', ''));
+                    currentAmount = num * 10000;
+                } else {
+                    currentAmount = parseInt(amtStr.replace(/,/g, '')) || 0;
+                }
+            } 
+            else {
+                if (line.toLowerCase().includes(target.toLowerCase())) {
+                    records.push({
+                        dateTime: currentDateTime,
+                        item: currentItem || '未命名項目',
+                        amount: currentAmount
+                    });
+                }
+            }
+        }
+
+        let total = records.reduce((sum, r) => sum + r.amount, 0);
+        
+        document.getElementById('displayName').innerText = target;
+        document.getElementById('totalAmount').innerText = '$ ' + total.toLocaleString();
+        document.getElementById('summaryResult').style.display = 'block';
+
+        let tbody = document.getElementById('resultBody');
+        tbody.innerHTML = '';
+        
+        if(records.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">找不到此人的參與紀錄</td></tr>';
+        } else {
+            records.forEach(r => {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `<td>${r.dateTime}</td><td>${r.item}</td><td class="amount">$ ${r.amount.toLocaleString()}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        document.getElementById('resultTable').style.display = 'table';
+    }
+    </script>
+</body>
+</html>

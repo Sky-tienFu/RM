@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <title>戰利品分寶統計 (四欄直式版)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f4f7f6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .import-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        input {
+            padding: 10px;
+            width: 40%;
+        }
+
+        .stats-bar {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            font-weight: bold;
+        }
+
+        /* 四欄網格排列 */
+        .list-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .list-item {
+            background: white;
+            border-left: 5px solid #3498db;
+            padding: 12px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 0.85em;
+        }
+
+        .item-header {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+
+        .item-info {
+            color: #333;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>戰利品分寶統計</h1>
+
+        <div class="import-box">
+            <h3>📥 貼上分寶資料</h3>
+            <textarea id="dataInput" placeholder="流水編號 名稱 金額 日期 時間 種類..."></textarea>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="輸入名稱搜尋...例如:藍染">
+            <button onclick="updateDisplay()">搜尋/更新</button>
+        </div>
+
+        <div class="stats-bar" id="statsBar">
+            <span>搜尋名稱：全部</span>
+            <span>搜尋結果：0 筆</span>
+            <span>總分寶金額：0 萬</span>
+        </div>
+
+        <div class="list-container" id="resultsList"></div>
+    </div>
+
+    <script>
+        function parseAmount(amountStr) {
+            let val = parseFloat(amountStr);
+            return isNaN(val) ? 0 : val;
+        }
+
+        function updateDisplay() {
+            const rawText = document.getElementById('dataInput').value;
+            const query = document.getElementById('searchInput').value.trim();
+            const list = document.getElementById('resultsList');
+            const statsBar = document.getElementById('statsBar');
+
+            list.innerHTML = "";
+            let count = 0;
+            let totalAmount = 0;
+
+            const lines = rawText.trim().split('\n');
+
+            lines.forEach(line => {
+                if (line.trim() === "") return;
+                const parts = line.trim().split(/\s+/);
+                if (parts.length < 6) return;
+
+                const item = {
+                    id: parts[0],
+                    name: parts[1],
+                    amount: parts[2],
+                    date: parts[3],
+                    time: parts[4],
+                    type: parts.slice(5).join(" ")
+                };
+
+                if (query === "" || item.name.includes(query)) {
+                    count++;
+                    totalAmount += parseAmount(item.amount);
+
+                    list.innerHTML += `
+                    <div class="list-item">
+                        <div class="item-header">#${item.id}</div>
+                        <div class="item-info">
+                            📅 ${item.date} ${item.time}&nbsp;&nbsp;&nbsp;⚔️ ${item.type}<br>
+                            👤 ${item.name}&nbsp;&nbsp;&nbsp;💰 ${item.amount}
+                        </div>
+                    </div>
+                `;
+                }
+            });
+
+            // 顯示搜尋名稱（如果沒有輸入則顯示「全部」）
+            const displayName = query === "" ? "全部" : query;
+
+            statsBar.innerHTML = `
+            <span>搜尋名稱：${displayName}</span>
+            <span>搜尋結果：${count} 筆</span>
+            <span>總分寶金額：${totalAmount.toFixed(1)} 萬</span>
+        `;
+        }
+    </script>
+
+</body>
+
+</html>
